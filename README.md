@@ -2,6 +2,8 @@
 
 [Qualisys motion capture systems](http://www.qualisys.com/) can provide high-speed, reliable, precision position tracking for the closed-loop control of [Bitcraze](https://www.bitcraze.io/) [Crazyflie](https://www.bitcraze.io/crazyflie-2/) quadcopter systems. This repository contains a collection of resources for developing Crazyflie projects and related applications that interact with QTM.
 
+![](https://s3-eu-west-1.amazonaws.com/content.qualisys.com/2016/12/drone-Ericsson.jpg)
+
 ## Python Script Examples
 
 The Python scripts in the "python" folder in this repository are intended to serve as a starting point for implementing custom Crazyflie applications.
