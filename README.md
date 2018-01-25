@@ -4,15 +4,23 @@
 
 ![](https://s3-eu-west-1.amazonaws.com/content.qualisys.com/2016/12/drone-Ericsson.jpg)
 
+## Setup Instructions
+
+- In QTM, the rigid body that corresponds to the Crazyflie quadcopter should have custom Euler angle definitions:
+  - First Rotation Axis: `Z`, Positive Rotation: `Clockwise`, Name: `Yaw`, Angle Range: `-180 to 180 deg.`
+  - Second Rotation Axis: `Y`, Positive Rotation: `Counterclockwise`, Name: `Pitch`
+  - Third Rotation Axis: `X`, Positive Rotation: `Clockwise`, Name: `Roll`, Angle Range: `-180 to 180 deg.`
+- The capture rate should be 100 Hz.
+- The Crazyflie should be placed on the floor, visible to the cameras, with the front of the Crazyflie pointing in the positive x-direction of the QTM coordinate system. (**Important:** If the front of the drone is not aligned with the x-direction it may **lose control and crash**. The stability of the closed-loop position control algorithm is predicated on correct initial alignment.)
+- The Crazyflie USB radio dongle must be set up correctly.
+
 ## Python Script Examples
 
 The Python scripts in the "python" folder in this repository are intended to serve as a starting point for implementing custom Crazyflie applications.
 
-### Requirements and Setup Instructions
-
 All scripts have been tested with Python 3.6.4 running on Windows 10 in a [conda](https://conda.io/) environment.
 
-Required packages:
+### Dependencies
 
 - [cflib](https://pypi.python.org/pypi/cflib)
 - [qtm](https://pypi.python.org/pypi/qtm/)
