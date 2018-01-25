@@ -19,7 +19,7 @@
 
 ## Python Script Examples
 
-The Python scripts in the "python" folder in this repository are intended to serve as a starting point for implementing custom Crazyflie applications.
+The example Python scripts in this repository are intended to serve as a starting point for implementing custom Crazyflie applications.
 
 All scripts have been tested with Python 3.6.4 running on Windows 10 in a [conda](https://conda.io/) environment.
 
