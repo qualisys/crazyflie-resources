@@ -11,8 +11,11 @@
   - Second Rotation Axis: `Y`, Positive Rotation: `Counterclockwise`, Name: `Pitch`
   - Third Rotation Axis: `X`, Positive Rotation: `Clockwise`, Name: `Roll`, Angle Range: `-180 to 180 deg.`
 - The capture rate should be 100 Hz.
-- The Crazyflie should be placed on the floor, visible to the cameras, with the front of the Crazyflie pointing in the positive x-direction of the QTM coordinate system. (**Important:** If the front of the drone is not aligned with the x-direction it may **lose control and crash**. The stability of the closed-loop position control algorithm is predicated on correct initial alignment.)
 - The Crazyflie USB radio dongle must be set up correctly.
+- The Crazyflie drone should be placed on the floor, visible to the cameras, with the front of the Crazyflie pointing in the positive x-direction of the QTM coordinate system. (**Important:** If the front of the drone is not aligned with the x-direction it may **lose control and crash**. The stability of the closed-loop position control algorithm is predicated on correct initial alignment.)
+
+![](_images/CrazyflieOrientation.png)
+
 
 ## Python Script Examples
 
