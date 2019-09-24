@@ -19,6 +19,8 @@
 
 ## Python Script Examples
 
+*NOTE: The scripts are currently deprecated as they use an older version of the Qualisys Python SDK.*
+
 The example Python scripts in this repository are intended to serve as a starting point for implementing custom Crazyflie applications.
 
 All scripts have been tested with Python 3.6.4 running on Windows 10 in a [conda](https://conda.io/) environment.
