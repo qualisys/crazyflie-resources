@@ -10,7 +10,6 @@ WARNINGS:
 - Front of Crazyflie must be facing positive X when script is started
 - At least one "controller" body must be present and specified in the list controller_body_names
 
-Full tutorial: https://www.baytas.net/crazyflie/
 """
 
 import asyncio
@@ -43,15 +42,15 @@ qtm_ip = "127.0.0.1"
 
 # QTM rigid body names
 cf_body_name = 'CF'
-controller_body_names = ['car']
+controller_body_names = ['landing', 'car']
 
 # Physical space config
-x_min = -1.0 # in m
-x_max = 1.0 # in m
+x_min = -2.0 # in m
+x_max = 2.0 # in m
 y_min = -2.0 # in m
-y_max = 1.0 # in m
+y_max = 2.0 # in m
 z_min = 0.0 # in m
-z_max = 1.5 # in m
+z_max = 2.0 # in m
 safeZone_margin = 0.2 # in m
 controller_offset_x = 0.0 # in m
 controller_offset_y = 0.0 # in m
@@ -129,6 +128,7 @@ cf_trackingLoss = 0
 cf_pose = Pose(0, 0, 0)
 controller_poses = [Pose(0, 0, 0)] * len(controller_body_names)
 controller_select = 0
+land_to_target = False
 
 
 #
@@ -310,7 +310,7 @@ def setup_estimator(cf):
 
 def on_press(key):
     """React to keyboard."""
-    global fly, controller_offset_x, controller_offset_y, controller_offset_z, controller_select
+    global fly, controller_offset_x, controller_offset_y, controller_offset_z, controller_select, land_to_target
     if key == keyboard.Key.esc:
         fly = False
     if hasattr(key, 'char'):
@@ -326,6 +326,9 @@ def on_press(key):
             controller_offset_z -= 0.1
         if key.char == "x":
             controller_offset_z += 0.1
+        if key.char == "l":
+            land_to_target = True
+            fly = False
         if key.char == "1":
             controller_select = 0
         if key.char == "2":
@@ -358,6 +361,9 @@ with SyncCrazyflie(cf_uri, cf=Crazyflie(rw_cache='./cache')) as scf:
     cf.param.set_value('posCtlPid.xyVelMax', cf_max_vel)
     cf.param.set_value('posCtlPid.zVelMax', cf_max_vel)
 
+    # Set active marker IDs
+
+
     # Set up callbacks to handle data from QTM
     qtm_wrapper.on_cf_pose = lambda pose: send_extpose_rot_matrix(cf, pose[0], pose[1], pose[2], pose[3])
 
@@ -385,8 +391,8 @@ with SyncCrazyflie(cf_uri, cf=Crazyflie(rw_cache='./cache')) as scf:
             controller_pose.x + controller_offset_x,
             controller_pose.y + controller_offset_y,
             controller_pose.z + controller_offset_z,
-            # yaw = controller_pose.yaw
-            yaw = 0
+            yaw = controller_pose.yaw
+            #yaw = 0
         )
 
         # Keep target inside bounding box
@@ -396,15 +402,40 @@ with SyncCrazyflie(cf_uri, cf=Crazyflie(rw_cache='./cache')) as scf:
 
         # Go to target
         cf.commander.send_position_setpoint(target_pose.x, target_pose.y, target_pose.z, target_pose.yaw)
-        
-        # # DEBUG
-        # print(cf_pose)
-        # print(controller_pose)
 
     # Land calmly
     print("Landing...")
-    for z in range(5, 0, -1):
-        cf.commander.send_hover_setpoint(0, 0, 0, float(z) / 10.0)
-        time.sleep(0.15)
+
+    # Slow down
+    cf.param.set_value('posCtlPid.xyVelMax', 0.5)
+    cf.param.set_value('posCtlPid.zVelMax', 0.03)
+    time.sleep(0.1)
+    
+    if land_to_target:
+        dz = 2.0
+        while True:
+            # Go just above target
+            if dz > 0.6 or cf_pose.distance_to(controller_pose) > 0.6:
+                dz = abs(cf_pose.z - controller_pose.z)
+                cf.commander.send_position_setpoint(controller_pose.x, controller_pose.y, controller_pose.z + 0.5, 0)
+                time.sleep(0.05)
+                t = time.time()
+                dt = 0
+            # Hover there for a little while
+            elif dt < 5:
+                dt = time.time() - t
+                cf.commander.send_position_setpoint(controller_pose.x, controller_pose.y, controller_pose.z + 0.5, 0)
+                time.sleep(0.1)
+            else:
+                break
+        # Land slowly
+        while cf_pose.distance_to(controller_pose) > 0.1:
+            cf.commander.send_position_setpoint(controller_pose.x, controller_pose.y, controller_pose.z, 0)
+            time.sleep(0.15)
+        cf.commander.send_stop_setpoint()
+    else:
+        for z in range(5, 0, -1):
+            cf.commander.send_hover_setpoint(0, 0, 0, float(z) / 10.0)
+            time.sleep(0.15)
 
 qtm_wrapper.close()
