@@ -10,6 +10,7 @@ WARNINGS:
 - Front of Crazyflie must be facing positive X when script is started
 - At least one "controller" body must be present and specified in the list controller_body_names
 
+Tutorial: https://www.baytas.net/crazyflie/
 """
 
 import asyncio
@@ -42,7 +43,7 @@ qtm_ip = "127.0.0.1"
 
 # QTM rigid body names
 cf_body_name = 'CF'
-controller_body_names = ['landing', 'car']
+controller_body_names = ['pad', 'car', 'DJI']
 
 # Physical space config
 x_min = -2.0 # in m
@@ -51,7 +52,7 @@ y_min = -2.0 # in m
 y_max = 2.0 # in m
 z_min = 0.0 # in m
 z_max = 2.0 # in m
-safeZone_margin = 0.2 # in m
+safeZone_margin = 0.5 # in m
 controller_offset_x = 0.0 # in m
 controller_offset_y = 0.0 # in m
 controller_offset_z = 0.5 # in m
@@ -391,8 +392,8 @@ with SyncCrazyflie(cf_uri, cf=Crazyflie(rw_cache='./cache')) as scf:
             controller_pose.x + controller_offset_x,
             controller_pose.y + controller_offset_y,
             controller_pose.z + controller_offset_z,
-            yaw = controller_pose.yaw
-            #yaw = 0
+            # yaw = controller_pose.yaw
+            yaw = 0
         )
 
         # Keep target inside bounding box
@@ -407,7 +408,7 @@ with SyncCrazyflie(cf_uri, cf=Crazyflie(rw_cache='./cache')) as scf:
     print("Landing...")
 
     # Slow down
-    cf.param.set_value('posCtlPid.xyVelMax', 0.5)
+    cf.param.set_value('posCtlPid.xyVelMax', 0.3)
     cf.param.set_value('posCtlPid.zVelMax', 0.03)
     time.sleep(0.1)
     
@@ -415,16 +416,16 @@ with SyncCrazyflie(cf_uri, cf=Crazyflie(rw_cache='./cache')) as scf:
         dz = 2.0
         while True:
             # Go just above target
-            if dz > 0.6 or cf_pose.distance_to(controller_pose) > 0.6:
+            if dz > 0.5 or cf_pose.distance_to(controller_pose) > 0.5:
                 dz = abs(cf_pose.z - controller_pose.z)
-                cf.commander.send_position_setpoint(controller_pose.x, controller_pose.y, controller_pose.z + 0.5, 0)
+                cf.commander.send_position_setpoint(controller_pose.x, controller_pose.y, controller_pose.z + 0.3, 0)
                 time.sleep(0.05)
                 t = time.time()
                 dt = 0
             # Hover there for a little while
-            elif dt < 5:
+            elif dt < 2:
                 dt = time.time() - t
-                cf.commander.send_position_setpoint(controller_pose.x, controller_pose.y, controller_pose.z + 0.5, 0)
+                cf.commander.send_position_setpoint(controller_pose.x, controller_pose.y, controller_pose.z + 0.3, 0)
                 time.sleep(0.1)
             else:
                 break
